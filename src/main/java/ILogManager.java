@@ -5,8 +5,8 @@ import com.google.gson.JsonObject;
  */
 public interface ILogManager {
 
-    int log(JsonObject policy);
-
-    int flush();
+    int write(JsonObject policy);
+    int query(long TRID);
+    int flush(long LSN);
 
 }

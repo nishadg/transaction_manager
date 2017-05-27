@@ -22,7 +22,7 @@ public class Transaction {
     }
 
     int log(JsonObject policy) {
-        logManager.log(policy);
+        logManager.write(policy);
         return SUCCESS;
     }
 
