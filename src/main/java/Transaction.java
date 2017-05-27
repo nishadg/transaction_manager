@@ -1,5 +1,3 @@
-import com.google.gson.JsonObject;
-
 /**
  *
  */
@@ -21,7 +19,7 @@ public class Transaction {
         return SUCCESS;
     }
 
-    int log(JsonObject policy) {
+    int log(PolicyModel policy) {
         logManager.write(policy);
         return SUCCESS;
     }

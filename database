@@ -10,4 +10,3 @@ CREATE TABLE policies.Logs
     type VARCHAR(10),
     payload JSON
 );
-CREATE UNIQUE INDEX Logs_TRID_uindex ON policies.Logs (TRID);
