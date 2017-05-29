@@ -1,4 +1,5 @@
-mysql -uroot -ppassword
+mysql -u root -p
+password
 
 create database policies;
 CREATE TABLE policies.Logs
@@ -8,5 +9,16 @@ CREATE TABLE policies.Logs
     prevLSN BIGINT,
     log_timestamp TIMESTAMP,
     type VARCHAR(10),
-    payload JSON
+    payload VARCHAR(400)
 );
+
+insert into logs (LSN, TRID, prevLSN, log_timestamp, type, payload) values (1, 565378690, 516209246, '2013-08-05 18:19:03', 'Female', '[{}]');
+insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (2, '11-698-8853', '00-278-7459', '2013-08-05 18:19:03', 'Male', '[{},{},{},{}]');
+insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (3, '51-177-1488', '63-957-0657', '2013-08-05 18:19:03', 'Female', '[{},{},{},{}]');
+insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (4, '31-177-9571', '02-529-3122', '2013-08-05 18:19:03', 'Female', '[{}]');
+insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (5, '78-916-7121', '65-185-3181', '2013-08-05 18:19:03', 'Male', '[{}]');
+insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (6, '96-593-6175', '64-716-6374', '2013-08-05 18:19:03', 'Male', '[{}]');
+insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (7, '66-127-9960', '98-511-3906', '2013-08-05 18:19:03', 'Male', '[{}]');
+insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (8, '45-799-4045', '29-000-9467', '2013-08-05 18:19:03', 'Male', '[{},{},{}]');
+insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (9, '50-010-3428', '35-608-8042', '2013-08-05 18:19:03', 'Male', '[{},{},{},{},{}]');
+insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (10, '36-714-8456', '20-762-8262', '2013-08-05 18:19:03', 'Female', '[{},{},{},{}]');

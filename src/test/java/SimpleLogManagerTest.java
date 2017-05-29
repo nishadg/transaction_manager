@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.Policy;
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
@@ -25,6 +26,12 @@ public class SimpleLogManagerTest {
 
     @Test
     public void query() throws Exception {
+        SimpleLogManager simpleLogManager = new SimpleLogManager();
+        long x = 565378690;
+        ArrayList<LogModel> r = new ArrayList<>();
+        r = simpleLogManager.query(x);
+        System.out.println();
+
     }
 
     @Test
