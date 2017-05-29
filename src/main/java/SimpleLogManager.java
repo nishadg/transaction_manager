@@ -1,9 +1,12 @@
 import com.google.gson.Gson;
 
+import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.sql.*;
+
 
 /**
  *
@@ -14,14 +17,16 @@ public class SimpleLogManager implements ILogManager {
     private long DB_PORT = 32772;
     private ArrayList<LogModel> logList;
 
+
     public SimpleLogManager() {
 
         logList = new ArrayList<LogModel>();
+        DatabaseConfig dc = new DatabaseConfig();
 
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:" + DB_PORT + "/policies?" +
-                    "user=root&password=password");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:" + dc.getPort() + "/"+dc.getDatabaseName()+"?" +
+                    "user="+dc.getUser()+"&password="+dc.getPassword()+"");
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException ex) {
@@ -36,7 +41,8 @@ public class SimpleLogManager implements ILogManager {
 
         LogModel log = new LogModel();
         log.trID = trID;
-        log.logTimestamp = new java.sql.Timestamp(new java.util.Date().getTime()).toString();
+        //changed the toString for timestamp (mySQL and java both have timestamp datatypes)
+        log.logTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
         log.payload = new Gson().toJson(policy, PolicyModel.class);
         log.type = "update";
 
@@ -46,8 +52,38 @@ public class SimpleLogManager implements ILogManager {
     }
 
     @Override
-    public int query(long TRID) {
-        return 0;
+    public ArrayList query(long TRID) {
+        ArrayList<LogModel> result = new ArrayList<>();
+        String sql = "SELECT * from LOGS WHERE TRID="+TRID;
+        try
+        {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while(rs.next())
+            {
+                long lsn  = rs.getInt("LSN");
+                long trid = rs.getInt("TRID");
+                long prevlsn = rs.getInt("prevLSN");
+                String type = rs.getString("type");
+                String payload = rs.getString("payload");
+                Timestamp log_timestamp = rs.getTimestamp("log_timestamp");
+                LogModel lm = new LogModel();
+                lm.logTimestamp = log_timestamp;
+                lm.lsn = lsn;
+                lm.trID = trid;
+                lm.prevLsn = prevlsn;
+                lm.payload = payload;
+                lm.type = type;
+                result.add(lm);
+
+            }
+        }
+        catch (Exception e)
+        {
+
+        }
+
+        return result;
     }
 
     @Override

@@ -1,6 +1,8 @@
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.sql.Timestamp;
+
 public class LogModel {
 
     @SerializedName("LSN")
@@ -14,7 +16,7 @@ public class LogModel {
     public Long prevLsn;
     @SerializedName("log_timestamp")
     @Expose
-    public String logTimestamp;
+    public Timestamp logTimestamp;
     @SerializedName("type")
     @Expose
     public String type;

@@ -1,10 +1,12 @@
+import java.util.ArrayList;
+
 /**
  *
  */
 public interface ILogManager {
 
     int write(PolicyModel policy, Long trID);
-    int query(long TRID);
+    ArrayList query(long TRID);
     int flush(long LSN);
 
 }
