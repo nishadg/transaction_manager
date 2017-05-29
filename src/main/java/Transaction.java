@@ -5,13 +5,17 @@ public class Transaction {
 
     final int SUCCESS = 0;
     ILogManager logManager;
+    long trID;
 
     long begin() {
-        long trid = 0; //TODO get trid from DB
-        return trid;
+        trID = 0; //TODO get trID from DB
+        logManager = new SimpleLogManager();
+        return trID;
     }
 
     int commit() {
+        logManager.flush(Long.MAX_VALUE);
+        //code to write policy to policy table
         return SUCCESS;
     }
 
@@ -20,7 +24,7 @@ public class Transaction {
     }
 
     int log(PolicyModel policy) {
-        logManager.write(policy);
+        logManager.write(policy, trID);
         return SUCCESS;
     }
 

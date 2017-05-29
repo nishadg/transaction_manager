@@ -6,8 +6,8 @@ import com.google.gson.annotations.SerializedName;
  */
 public class PolicyModel {
 
-    @SerializedName("TRID")
+    @SerializedName("policyID")
     @Expose
-    public Long trID;
+    public Long policyID;
     //TODO Dummy calss. generate json schema.
 }

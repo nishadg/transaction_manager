@@ -32,10 +32,10 @@ public class SimpleLogManager implements ILogManager {
     }
 
     @Override
-    public int write(PolicyModel policy) {
+    public int write(PolicyModel policy, Long trID) {
 
         LogModel log = new LogModel();
-        log.trID = policy.trID;
+        log.trID = trID;
         log.logTimestamp = new java.sql.Timestamp(new java.util.Date().getTime()).toString();
         log.payload = new Gson().toJson(policy, PolicyModel.class);
         log.type = "update";
