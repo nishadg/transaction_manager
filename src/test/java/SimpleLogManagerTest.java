@@ -19,8 +19,7 @@ public class SimpleLogManagerTest {
     public void write() throws Exception {
         SimpleLogManager simpleLogManager = new SimpleLogManager();
         PolicyModel policy = new PolicyModel();
-        policy.trID = 1L;
-        int result = simpleLogManager.write(policy);
+        int result = simpleLogManager.write(policy, 1L);
         assertEquals(1, result);
     }
 

@@ -14,7 +14,6 @@ import java.sql.*;
 public class SimpleLogManager implements ILogManager {
 
     private Connection connection;
-    private long DB_PORT = 32772;
     private ArrayList<LogModel> logList;
 
 
