@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.*;
+import java.util.Iterator;
 
 
 /**
@@ -15,7 +16,7 @@ public class SimpleLogManager implements ILogManager {
 
     private Connection connection;
     private ArrayList<LogModel> logList;
-
+    private long LSN = 0;
 
     public SimpleLogManager() {
 
@@ -26,6 +27,9 @@ public class SimpleLogManager implements ILogManager {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             connection = DriverManager.getConnection("jdbc:mysql://localhost:" + dc.getPort() + "/"+dc.getDatabaseName()+"?" +
                     "user="+dc.getUser()+"&password="+dc.getPassword()+"");
+
+            LSN = getMaxLSN();
+
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException ex) {
@@ -40,12 +44,13 @@ public class SimpleLogManager implements ILogManager {
 
         LogModel log = new LogModel();
         log.trID = trID;
+        log.prevLsn = LSN;
+        log.lsn = ++LSN;
         //changed the toString for timestamp (mySQL and java both have timestamp datatypes)
         log.logTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
         log.payload = new Gson().toJson(policy, PolicyModel.class);
         log.type = "update";
 
-        //TODO: logic to get prevLSN. Mostly can be done when flushing ot DB.
         logList.add(log);
         return 1;
     }
@@ -88,18 +93,55 @@ public class SimpleLogManager implements ILogManager {
     @Override
     public int flush(long LSN) {
 
-//  TODO: LSN is a generated auto-increment value in the database. Retrieve the LSN when inserting and use it for prevLSN.
+        String insertSQL = "INSERT INTO Logs (LSN, TRID, prevLSN, log_timestamp, type, payload) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
-//        String insertSQL = "INSERT INTO Logs (TRID,prevLSN,log_timestamp,type,payload) " +
-//                "VALUES (" + valuesString + ")";
-//
-//        try {
-//            Statement insertStatement = connection.createStatement();
-//            insertStatement.executeUpdate(insertSQL, Statement.RETURN_GENERATED_KEYS);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-        return 0;
+        Iterator<LogModel> iter = logList.iterator();
+        while(iter.hasNext()){
+            LogModel log = iter.next();
+            if (log.lsn <= LSN) {
+                try {
+                    PreparedStatement preparedStmt = connection.prepareStatement(insertSQL);
+                    preparedStmt.setLong(1, log.lsn);
+                    preparedStmt.setLong(2, log.trID);
+                    preparedStmt.setLong(3, log.prevLsn);
+                    preparedStmt.setTimestamp(4, log.logTimestamp);
+                    preparedStmt.setString(5, log.type);
+                    preparedStmt.setString(6, log.payload);
+                    preparedStmt.execute();
+
+                    iter.remove();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                break;
+            }
+        }
+        return 1;
+    }
+
+    private long getMaxLSN(){
+
+        String getMaxLSN = "SELECT MAX(LSN) as lsn FROM Logs;";
+        int result = -1;
+        try {
+
+            Statement stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery(getMaxLSN);
+
+            if (resultSet.next()) {
+                result = resultSet.getInt("lsn");
+            }
+
+            if (result != 0) {
+                LSN = result;
+            }
+
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        return LSN;
     }
 
     @Override

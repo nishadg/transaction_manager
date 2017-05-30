@@ -35,6 +35,26 @@ public class SimpleLogManagerTest {
 
     @Test
     public void flush() throws Exception {
+        SimpleLogManager simpleLogManager = new SimpleLogManager();
+
+        PolicyModel policyA = new PolicyModel();
+        int resultA = simpleLogManager.write(policyA, 1L);
+        assertEquals(1, resultA);
+
+        PolicyModel policyB = new PolicyModel();
+        int resultB = simpleLogManager.write(policyB, 2L);
+        assertEquals(1, resultB);
+
+        int result = simpleLogManager.flush(2);
+        assertEquals(1, result);
+
     }
+
+//    @Test
+//    public void setPrevLSN() throws Exception {
+//        SimpleLogManager simpleLogManager = new SimpleLogManager();
+//        long result = simpleLogManager.getMaxLSN();
+//        assertEquals(0, result);
+//    }
 
 }
