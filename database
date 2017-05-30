@@ -4,7 +4,7 @@ password
 create database policies;
 CREATE TABLE policies.Logs
 (
-    LSN BIGINT PRIMARY KEY AUTO_INCREMENT,
+    LSN BIGINT PRIMARY KEY,
     TRID BIGINT,
     prevLSN BIGINT,
     log_timestamp TIMESTAMP,
