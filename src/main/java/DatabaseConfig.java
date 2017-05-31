@@ -43,7 +43,7 @@ public class DatabaseConfig {
 
         public  String getHost() {return properties.getProperty("jdbc.db.host");}
 
-        public static String getPort() {return properties.getProperty("jdbc.db.port");}
+        public  String getPort() {return properties.getProperty("jdbc.db.port");}
 
 
 }
