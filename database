@@ -22,3 +22,15 @@ insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (
 insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (8, '45-799-4045', '29-000-9467', '2013-08-05 18:19:03', 'Male', '[{},{},{}]');
 insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (9, '50-010-3428', '35-608-8042', '2013-08-05 18:19:03', 'Male', '[{},{},{},{},{}]');
 insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (10, '36-714-8456', '20-762-8262', '2013-08-05 18:19:03', 'Female', '[{},{},{},{}]');
+
+
+//Policies Table
+create table Policies
+(
+	id int auto_increment
+		primary key,
+	policyID int null,
+	payload text null,
+	entered datetime null,
+	invalidated datetime null
+);
