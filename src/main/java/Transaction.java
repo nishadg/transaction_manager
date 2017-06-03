@@ -18,8 +18,11 @@ public class Transaction {
         this.bufferSize = bufferSize;
     }
 
+
+
     long begin() {
         trID = 0; //TODO get trID from DB
+        //TODO: write begin transaction log
         logManager = new SimpleLogManager();
         policyDB = new PolicyDBAdapter();
         buffer = new ArrayList<>(bufferSize);
@@ -51,9 +54,13 @@ public class Transaction {
     private void flush() {
         logManager.flush(Long.MAX_VALUE);
         for (PolicyModel policy : buffer) {
-            policyDB.write(policy);// TODO check for update and write invalidate logic
+            if(policyDB.exists(policy.policyID)){
+                policyDB.invalidate(policy.policyID, policy.entered);
+            }
+            policyDB.write(policy);
             buffer.remove(policy);
         }
+        //TODO: write checkpoint log.
     }
 
 }

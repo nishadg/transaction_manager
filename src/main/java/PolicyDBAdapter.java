@@ -57,7 +57,7 @@ public class PolicyDBAdapter {
     }
 
     void invalidate(int policyID, Timestamp invalidateTimestamp) {
-        String updateSQL = "UPDATE Policies SET invalidated = ? WHERE policyID = ?";
+        String updateSQL = "UPDATE Policies SET invalidated = ? WHERE policyID = ? AND invalidated IS NULL";
         PreparedStatement preparedStmt;
         try {
             preparedStmt = connection.prepareStatement(updateSQL);
