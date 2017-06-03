@@ -10,7 +10,7 @@ public class PolicyModel {
 
     @SerializedName("policyID")
     @Expose
-    public Long policyID;
+    public Integer policyID;
 
     @SerializedName("entered")
     @Expose
@@ -22,6 +22,15 @@ public class PolicyModel {
 
     @SerializedName("payload")
     @Expose
-    public Timestamp payload;
+    public String payload;
 
+    public PolicyModel(Integer policyID, Timestamp entered, Timestamp invalidated, String payload) {
+        this.policyID = policyID;
+        this.entered = entered;
+        this.invalidated = invalidated;
+        this.payload = payload;
+    }
+
+    public PolicyModel() {
+    }
 }
