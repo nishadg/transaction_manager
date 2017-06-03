@@ -2,15 +2,35 @@ mysql -u root -p
 password
 
 create database policies;
+//LOGS table
 CREATE TABLE policies.Logs
 (
     LSN BIGINT PRIMARY KEY,
     TRID BIGINT,
     prevLSN BIGINT,
-    log_timestamp TIMESTAMP,
+    log_timestamp TIMESTAMP(2),
     type VARCHAR(10),
     payload VARCHAR(400)
 );
+
+
+//POLICIES Table
+create table Policies
+(
+	id int auto_increment
+	primary key,
+	policyID int null,
+	payload text null,
+	entered TIMESTAMP(2) null,
+	invalidated TIMESTAMP(2) null
+);
+
+ALTER TABLE LOGS
+MODIFY LOG_TIMESTAMP TIMESTAMP(2);
+
+ALTER TABLE POLICIES
+MODIFY ENTERED TIMESTAMP(2),
+        INVALIDATED TIMESTAMP(2);
 
 insert into logs (LSN, TRID, prevLSN, log_timestamp, type, payload) values (1, 565378690, 516209246, '2013-08-05 18:19:03', 'Female', '[{}]');
 insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (2, '11-698-8853', '00-278-7459', '2013-08-05 18:19:03', 'Male', '[{},{},{},{}]');
@@ -24,13 +44,3 @@ insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (
 insert into policies (LSN, TRID, prevLSN, log_timestamp, type, payload) values (10, '36-714-8456', '20-762-8262', '2013-08-05 18:19:03', 'Female', '[{},{},{},{}]');
 
 
-//Policies Table
-create table Policies
-(
-	id int auto_increment
-		primary key,
-	policyID int null,
-	payload text null,
-	entered datetime null,
-	invalidated datetime null
-);
