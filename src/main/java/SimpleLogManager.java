@@ -1,5 +1,4 @@
 import com.google.gson.Gson;
-
 import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,9 +13,9 @@ import java.util.Iterator;
  */
 public class SimpleLogManager implements ILogManager {
 
-    private Connection connection;
-    private ArrayList<LogModel> logList;
-    private long LSN = 0;
+    protected Connection connection;
+    protected ArrayList<LogModel> logList;
+    protected long LSN = 0;
 
     public SimpleLogManager() {
 
@@ -37,7 +36,9 @@ public class SimpleLogManager implements ILogManager {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
+
     }
+
 
     @Override
     public int write(PolicyModel policy, Long trID) {
@@ -65,31 +66,48 @@ public class SimpleLogManager implements ILogManager {
             ResultSet rs = stmt.executeQuery(sql);
             while(rs.next())
             {
-                long lsn  = rs.getInt("LSN");
-                long trid = rs.getInt("TRID");
-                long prevlsn = rs.getInt("prevLSN");
-                String type = rs.getString("type");
-                String payload = rs.getString("payload");
-                Timestamp log_timestamp = rs.getTimestamp("log_timestamp");
-                LogModel lm = new LogModel();
-                lm.logTimestamp = log_timestamp;
-                lm.lsn = lsn;
-                lm.trID = trid;
-                lm.prevLsn = prevlsn;
-                lm.payload = payload;
-                lm.type = type;
-                result.add(lm);
+                result.add(createLogModelObject(rs));
 
             }
         }
-        catch (Exception e)
+        catch (SQLException ex)
         {
-
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
         }
 
         return result;
     }
 
+    public LogModel createLogModelObject(ResultSet rs)
+    {
+        LogModel lm = new LogModel();
+        try {
+            long lsn = rs.getInt("LSN");
+            long trid = rs.getInt("TRID");
+            long prevlsn = rs.getInt("prevLSN");
+            String type = rs.getString("type");
+            String payload = rs.getString("payload");
+            Timestamp log_timestamp = rs.getTimestamp("log_timestamp");
+            lm.logTimestamp = log_timestamp;
+            lm.lsn = lsn;
+            lm.trID = trid;
+            lm.prevLsn = prevlsn;
+            lm.payload = payload;
+            lm.type = type;
+
+        }
+        catch(SQLException ex)
+        {
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
+
+        return lm;
+
+    }
     @Override
     public int flush(long LSN) {
 

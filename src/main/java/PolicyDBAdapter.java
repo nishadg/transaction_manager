@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -35,6 +36,8 @@ public class PolicyDBAdapter {
             preparedStmt.setInt(1, policy.policyID);
             preparedStmt.setString(2, policy.payload);
             preparedStmt.setTimestamp(3, policy.entered);
+            //TODO: Handle null values for invalidated field in case of redo
+            //TODO: policy.invalidated = null which may not translate to NULL in sql
             preparedStmt.setTimestamp(4, policy.invalidated);
             preparedStmt.execute();
         } catch (SQLException e) {
@@ -80,6 +83,50 @@ public class PolicyDBAdapter {
             e.printStackTrace();
         }
     }
+
+    public PolicyModel lastPolicy() {
+        String selectSQL = "Slect ENTERED FROM Policies ORDER BY ENTERED DESC LIMIT 1";
+        PolicyModel result = null;
+        try {
+            PreparedStatement statement = connection.prepareStatement(selectSQL);
+            ResultSet rs = statement.executeQuery();
+            result = createPolicyModelObject(rs);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public PolicyModel createPolicyModelObject(ResultSet rs)
+    {
+        PolicyModel pm = new PolicyModel();
+        try {
+            int policyID = rs.getInt("policyID");
+            String payload = rs.getString("payload");
+            Timestamp entered = rs.getTimestamp("entered");
+            Timestamp invalidated = rs.getTimestamp("invalidated");
+
+            pm.policyID = policyID;
+            pm.entered = entered;
+            pm.invalidated = invalidated;
+            pm.payload = payload;
+
+        }
+        catch(SQLException ex)
+        {
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
+
+        return pm;
+
+    }
+
+
+
 
     @Override
     protected void finalize() throws Throwable {

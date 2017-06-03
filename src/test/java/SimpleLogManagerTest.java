@@ -13,6 +13,8 @@ import static org.junit.Assert.*;
  */
 public class SimpleLogManagerTest {
 
+
+
     private SimpleLogManager simpleLogManager;
 
     @Test
