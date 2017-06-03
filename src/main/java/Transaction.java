@@ -1,8 +1,6 @@
-import java.sql.Timestamp;
-import java.util.ArrayList;
-
 import com.google.gson.Gson;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 /**
@@ -10,31 +8,26 @@ import java.util.ArrayList;
  */
 public class Transaction {
 
-    LogDBAdapter logDB;
-    PolicyDBAdapter policyDB;
-    final int SUCCESS = 0;
-    ILogManager logManager;
-    PolicyDBAdapter policyDB;
-    ArrayList<PolicyModel> buffer;
-    int bufferSize = 5;
-    long trID;
+    private LogDBAdapter logDB;
+    private final int SUCCESS = 0;
+    private PolicyDBAdapter policyDB;
+    private ArrayList<PolicyModel> buffer;
+    private int bufferSize = 5;
+    private long trID;
 
-    public Transaction()
-    {
+    public Transaction() {
         logDB = new LogDBAdapter();
-        policyDB  = new PolicyDBAdapter();
-        ArrayList<LogModel> latest2logs =  new ArrayList<>();
-        latest2logs  = logDB.get_last_two_logs();
+        policyDB = new PolicyDBAdapter();
+        ArrayList<LogModel> latest2logs = new ArrayList<>();
+        latest2logs = logDB.get_last_two_logs();
         System.out.println(latest2logs.get(0));
         int x = recoveryManager(latest2logs);
 
-
     }
 
-    public int recoveryManager(ArrayList<LogModel> latest2logs)
-    {
-        LogModel lastlog = latest2logs.get(0);
-        LogModel secondlastlog = latest2logs.get(1);
+    private int recoveryManager(ArrayList<LogModel> latest2logs) {
+        LogModel lastLog = latest2logs.get(0);
+        LogModel secondLastLog = latest2logs.get(1);
 
         /*
         CASE 1:
@@ -67,36 +60,31 @@ public class Transaction {
         */
 
         /*CASE 1:*/
-        if(lastlog.payload == "CHECKPOINT" &&
-                (secondlastlog.payload == "COMMIT" || secondlastlog.payload == "ABORT"))
-        {
+        if (lastLog.payload.equals("CHECKPOINT") &&
+                (secondLastLog.payload.equals("COMMIT") || secondLastLog.payload.equals("ABORT"))) {
             return 1;
         }
 
         /*CASE 2:*/
-        else if(lastlog.payload == "CHECKPOINT" &&
-                (secondlastlog.payload != "COMMIT" || secondlastlog.payload != "ABORT"))
-        {
-                return undo();
+        else if (lastLog.payload.equals("CHECKPOINT") &&
+                (!secondLastLog.payload.equals("COMMIT")  || !secondLastLog.payload.equals("ABORT"))) {
+            return undo();
         }
 
 
         /*CASE 3:*/
-        else if(lastlog.payload == "COMMIT")
-        {
+        else if (lastLog.payload.equals("COMMIT")){
             return redo();
 
         }
 
         /*CASE 4:*/
-        else if(lastlog.payload == "ABORT")
-        {
+        else if (lastLog.payload.equals("ABORT")) {
             return undo();
         }
 
         /*CASE 5:*/
-        else
-        {
+        else {
             return undo();
         }
 
@@ -106,7 +94,6 @@ public class Transaction {
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
     }
-
 
 
     long begin() {
@@ -130,7 +117,7 @@ public class Transaction {
         PolicyModel policy = new PolicyModel(policyModel.policyID,
                 new java.sql.Timestamp(new java.util.Date().getTime()), null, policyJSON);
 
-        logManager.write(policy, trID);
+        logDB.write(policy, trID);
         buffer.add(policy);
         if (buffer.size() == bufferSize) {
             flush();
@@ -138,8 +125,7 @@ public class Transaction {
         return SUCCESS;
     }
 
-    public int redo()
-    {
+    private int redo() {
         /*
         STEP 1:
         FIND THE LAST TS FROM THE POLICY TABLE
@@ -159,9 +145,9 @@ public class Transaction {
         ArrayList<LogModel> tuplesFromLogtable = logDB.get_logs_greater_than(lastTimeStamp);
 
         //STEP 3:
-        for(LogModel i: tuplesFromLogtable) {
+        for (LogModel i : tuplesFromLogtable) {
             PolicyModel pm2 = new PolicyModel();
-            pm2.payload  = i.payload;
+            pm2.payload = i.payload;
             pm2.entered = i.logTimestamp;
             //TODO: find out policyID
             pm2.policyID = 2;
@@ -172,23 +158,20 @@ public class Transaction {
         //STEP 4:
 
 
-
-
         return 0;
     }
 
     // tell me (yadhu) if you change the return type
     // else let this comment be here till eternity.
-    public int undo()
-    {
+    private int undo() {
 
         return 0;
     }
 
     private void flush() {
-        logManager.flush(Long.MAX_VALUE);
+        logDB.flush(Long.MAX_VALUE);
         for (PolicyModel policy : buffer) {
-            if(policyDB.exists(policy.policyID)){
+            if (policyDB.exists(policy.policyID)) {
                 policyDB.invalidate(policy.policyID, policy.entered);
             }
             policyDB.write(policy);
