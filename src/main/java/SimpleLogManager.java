@@ -56,6 +56,34 @@ public class SimpleLogManager implements ILogManager {
         return 1;
     }
 
+    public int write(Long trID, int type){
+        LogModel log = new LogModel();
+        log.trID = trID;
+        log.prevLsn = LSN;
+        log.lsn = ++LSN;
+        //changed the toString for timestamp (mySQL and java both have timestamp datatypes)
+        log.logTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+        log.payload = "";
+
+        switch (type){
+            case BEGIN:
+                log.type = "begin";
+                break;
+            case COMMIT:
+                log.type = "commit";
+                break;
+            case ABORT:
+                log.type = "abort";
+                break;
+            case CHECKPOINT:
+                log.type = "checkpoint";
+                break;
+        }
+
+        logList.add(log);
+        return 1;
+    }
+
     @Override
     public ArrayList query(long TRID) {
         ArrayList<LogModel> result = new ArrayList<>();
@@ -131,12 +159,13 @@ public class SimpleLogManager implements ILogManager {
                     iter.remove();
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    return -1;
                 }
             } else {
                 break;
             }
         }
-        return 1;
+        return 0;
     }
 
     private long getMaxLSN(){
@@ -158,6 +187,7 @@ public class SimpleLogManager implements ILogManager {
 
         } catch(SQLException e) {
             e.printStackTrace();
+            return -1;
         }
         return LSN;
     }

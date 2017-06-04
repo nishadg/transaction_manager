@@ -2,6 +2,7 @@ import com.google.gson.Gson;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  *
@@ -19,10 +20,11 @@ public class Transaction {
         logDB = new LogDBAdapter();
         policyDB = new PolicyDBAdapter();
         ArrayList<LogModel> latest2logs = new ArrayList<>();
-        latest2logs = logDB.get_last_two_logs();
-        System.out.println(latest2logs.get(0));
-        int x = recoveryManager(latest2logs);
-
+        latest2logs = logDB.getLastTwoLogs();
+//        System.out.println(latest2logs.get(0));
+        if (latest2logs.size() > 0) {
+            int x = recoveryManager(latest2logs);
+        }
     }
 
     private int recoveryManager(ArrayList<LogModel> latest2logs) {
@@ -67,13 +69,13 @@ public class Transaction {
 
         /*CASE 2:*/
         else if (lastLog.payload.equals("CHECKPOINT") &&
-                (!secondLastLog.payload.equals("COMMIT")  || !secondLastLog.payload.equals("ABORT"))) {
+                (!secondLastLog.payload.equals("COMMIT") || !secondLastLog.payload.equals("ABORT"))) {
             return undo();
         }
 
 
         /*CASE 3:*/
-        else if (lastLog.payload.equals("COMMIT")){
+        else if (lastLog.payload.equals("COMMIT")) {
             return redo();
 
         }
@@ -95,20 +97,26 @@ public class Transaction {
         this.bufferSize = bufferSize;
     }
 
+    int currentBufferSize() {
+        return buffer.size();
+    }
 
-    long begin() {
-        trID = 0; //TODO get trID from DB
-        //TODO: write begin transaction log
+
+    void begin() {
+        trID = logDB.getNewTrid();
+        logDB.write(trID, ILogManager.BEGIN);
         buffer = new ArrayList<>(bufferSize);
-        return trID;
     }
 
     int commit() {
+        logDB.write(trID, ILogManager.COMMIT);
         flush();
         return SUCCESS;
     }
 
     int abort() {
+        logDB.write(trID, ILogManager.ABORT);
+        flush();
         return SUCCESS;
     }
 
@@ -142,7 +150,7 @@ public class Transaction {
         Timestamp lastTimeStamp = pm.entered;
 
         //STEP 2:
-        ArrayList<LogModel> tuplesFromLogtable = logDB.get_logs_greater_than(lastTimeStamp);
+        ArrayList<LogModel> tuplesFromLogtable = logDB.getLogsGreaterThan(lastTimeStamp);
 
         //STEP 3:
         for (LogModel i : tuplesFromLogtable) {
@@ -170,14 +178,16 @@ public class Transaction {
 
     private void flush() {
         logDB.flush(Long.MAX_VALUE);
-        for (PolicyModel policy : buffer) {
+        for (Iterator<PolicyModel> iterator = buffer.iterator(); iterator.hasNext(); ) {
+            PolicyModel policy = iterator.next();
             if (policyDB.exists(policy.policyID)) {
                 policyDB.invalidate(policy.policyID, policy.entered);
             }
             policyDB.write(policy);
-            buffer.remove(policy);
+            iterator.remove();
         }
-        //TODO: write checkpoint log.
+        logDB.write(trID, ILogManager.CHECKPOINT);
+        logDB.flush(Long.MAX_VALUE);
     }
 
 }

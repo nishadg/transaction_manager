@@ -85,7 +85,7 @@ public class PolicyDBAdapter {
     }
 
     public PolicyModel lastPolicy() {
-        String selectSQL = "Slect ENTERED FROM Policies ORDER BY ENTERED DESC LIMIT 1";
+        String selectSQL = "SELECT ENTERED FROM Policies ORDER BY ENTERED DESC LIMIT 1";
         PolicyModel result = null;
         try {
             PreparedStatement statement = connection.prepareStatement(selectSQL);
