@@ -4,7 +4,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.Policy;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -48,7 +50,16 @@ public class SimpleLogManagerTest {
         assertEquals(1, resultB);
 
         int result = simpleLogManager.flush(2);
-        assertEquals(1, result);
+       // assertEquals(1, result);
+
+       PolicyDBAdapter adapter = new PolicyDBAdapter();
+       adapter.validate(5);
+//        java.sql.Timestamp timestamp = java.sql.Timestamp.valueOf("2017-06-03 21:46:34.54");
+//
+//        Set<Integer> setRes = adapter.getPoliciesGreaterThan(timestamp);
+//        adapter.deletePoliciesGreaterThan(timestamp);
+//        System.out.println("Set is" + setRes);
+
 
     }
 

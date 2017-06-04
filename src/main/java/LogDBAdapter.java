@@ -85,6 +85,24 @@ public class LogDBAdapter extends SimpleLogManager {
         return 0;
     }
 
+    public Timestamp getLastCommitTs() {
+
+        String lastCommitSQL = "SELECT log_timestamp as ts FROM Logs WHERE type = 'commit' ORDER BY log_timestamp DESC LIMIT 1;";
+        try {
+
+            Statement stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery(lastCommitSQL);
+
+            if (resultSet.next()) {
+                Timestamp result = resultSet.getTimestamp("ts");
+                return result;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     @Override
     protected void finalize() throws Throwable {

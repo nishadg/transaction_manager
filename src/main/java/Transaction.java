@@ -3,6 +3,7 @@ import com.google.gson.Gson;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  *
@@ -115,6 +116,8 @@ public class Transaction {
     }
 
     int abort() {
+        undo();
+        logDB.emptyBuffer();
         logDB.write(trID, ILogManager.ABORT);
         flush();
         return SUCCESS;
@@ -174,6 +177,32 @@ public class Transaction {
     // else let this comment be here till eternity.
     private int undo() {
 
+        /*
+        STEP 1:
+        FIND THE TS OF LAST COMMITTED TRANSACTION FROM LOGS
+        STEP 2:
+        FIND THE POLICIES THAT ARE GREATER THAN THIS TS IN POLICIES TABLE
+        STEP 3:
+        DELETE THOSE POLICIES
+        STEP 4:
+        IF PREV VERSION OF THESE POLICIES EXIST, VALIDATE THEM
+        */
+
+        // STEP 1
+        Timestamp timestamp = logDB.getLastCommitTs();
+
+        // STEP 2
+        Set<Integer> policies = policyDB.getPoliciesGreaterThan(timestamp);
+
+        //STEP 3
+        policyDB.deletePoliciesGreaterThan(timestamp);
+
+        //STEP4
+        for (Integer policy : policies) {
+            if (policyDB.exists(policy)) {
+                policyDB.validate(policy);
+            }
+        }
         return 0;
     }
 
@@ -190,5 +219,4 @@ public class Transaction {
         logDB.write(trID, ILogManager.CHECKPOINT);
         logDB.flush(Long.MAX_VALUE);
     }
-
 }

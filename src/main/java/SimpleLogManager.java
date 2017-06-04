@@ -168,6 +168,10 @@ public class SimpleLogManager implements ILogManager {
         return 0;
     }
 
+    public void emptyBuffer(){
+        logList.clear();
+    }
+
     private long getMaxLSN(){
 
         String getMaxLSN = "SELECT MAX(LSN) as lsn FROM Logs;";

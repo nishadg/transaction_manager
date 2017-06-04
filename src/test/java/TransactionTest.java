@@ -22,15 +22,45 @@ public class TransactionTest {
         t = new Transaction();
     }
 
+//    @Test
+//    public void flushTest(){
+//        t.begin();
+//        for(int i = 0; i < 7; i++){
+//            String policyJSON = "{ \"policyID\" : " + i + ", \"user\":\"name\"}";
+//            t.write(policyJSON);
+//        }
+//        assertEquals(2, t.currentBufferSize());
+//        t.commit();
+//        assertEquals(0, t.currentBufferSize());
+//    }
+
     @Test
-    public void flushTest(){
+    public void flushVersionsTest() {
         t.begin();
-        for(int i = 0; i < 7; i++){
+
+        for(int i = 0; i < 5; i++){
             String policyJSON = "{ \"policyID\" : " + i + ", \"user\":\"name\"}";
             t.write(policyJSON);
         }
-        assertEquals(2, t.currentBufferSize());
+
+        for(int i = 0; i < 5; i++){
+            String policyJSON = "{ \"policyID\" : " + i + ", \"user\":\"name\"}";
+            t.write(policyJSON);
+        }
         t.commit();
-        assertEquals(0, t.currentBufferSize());
+
+    }
+    @Test
+    public void undo() {
+
+        t.begin();
+        for(int i = 10; i < 33; i++){
+            String policyJSON = "{ \"policyID\" : " + i+ ", \"user\":\"name\"}";
+            t.write(policyJSON);
+        }
+
+        t.abort();
+
+
     }
 }
