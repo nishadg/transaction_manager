@@ -168,6 +168,8 @@ public class PolicyDBAdapter {
             pm.invalidated = invalidated;
             pm.payload = payload;
 
+            return pm;
+
         }
         catch(SQLException ex)
         {
@@ -176,7 +178,7 @@ public class PolicyDBAdapter {
             System.out.println("VendorError: " + ex.getErrorCode());
         }
 
-        return pm;
+        return null;
 
     }
 

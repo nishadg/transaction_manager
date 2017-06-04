@@ -124,6 +124,8 @@ public class SimpleLogManager implements ILogManager {
             lm.prevLsn = prevlsn;
             lm.payload = payload;
             lm.type = type;
+            return lm;
+
 
         }
         catch(SQLException ex)
@@ -133,8 +135,7 @@ public class SimpleLogManager implements ILogManager {
             System.out.println("VendorError: " + ex.getErrorCode());
         }
 
-        return lm;
-
+        return null;
     }
     @Override
     public int flush(long LSN) {
