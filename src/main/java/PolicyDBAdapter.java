@@ -85,12 +85,13 @@ public class PolicyDBAdapter {
     }
 
     public PolicyModel lastPolicy() {
-        String selectSQL = "SELECT ENTERED FROM Policies ORDER BY ENTERED DESC LIMIT 1";
+        String selectSQL = "SELECT * FROM Policies ORDER BY entered DESC LIMIT 1";
         PolicyModel result = null;
         try {
             PreparedStatement statement = connection.prepareStatement(selectSQL);
             ResultSet rs = statement.executeQuery();
-            result = createPolicyModelObject(rs);
+            if(rs.next())
+                result = createPolicyModelObject(rs);
 
         } catch (SQLException e) {
             e.printStackTrace();

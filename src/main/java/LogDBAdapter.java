@@ -56,7 +56,7 @@ public class LogDBAdapter extends SimpleLogManager {
         try {
             PreparedStatement prstmt = connection.prepareStatement(sql);
             prstmt.setTimestamp(1, ts);
-            ResultSet rs = prstmt.executeQuery(sql);
+            ResultSet rs = prstmt.executeQuery();
             while (rs.next()) {
                 result.add(createLogModelObject(rs));
             }

@@ -62,26 +62,26 @@ public class Transaction {
         */
 
         /*CASE 1:*/
-        if (lastLog.payload.equals("CHECKPOINT") &&
-                (secondLastLog.payload.equals("COMMIT") || secondLastLog.payload.equals("ABORT"))) {
+        if (lastLog.type.equals("CHECKPOINT") &&
+                (secondLastLog.type.equals("COMMIT") || secondLastLog.type.equals("ABORT"))) {
             return 1;
         }
 
         /*CASE 2:*/
-        else if (lastLog.payload.equals("CHECKPOINT") &&
-                (!secondLastLog.payload.equals("COMMIT") || !secondLastLog.payload.equals("ABORT"))) {
+        else if (lastLog.type.equals("CHECKPOINT") &&
+                (!secondLastLog.type.equals("COMMIT") || !secondLastLog.type.equals("ABORT"))) {
             return undo();
         }
 
 
         /*CASE 3:*/
-        else if (lastLog.payload.equals("COMMIT")) {
+        else if (lastLog.type.equalsIgnoreCase("COMMIT")) {
             return redo();
 
         }
 
         /*CASE 4:*/
-        else if (lastLog.payload.equals("ABORT")) {
+        else if (lastLog.type.equalsIgnoreCase("ABORT")) {
             return undo();
         }
 
@@ -154,11 +154,12 @@ public class Transaction {
 
         //STEP 3:
         for (LogModel i : tuplesFromLogtable) {
+            if (!i.type.equalsIgnoreCase("update")) continue;
             PolicyModel pm2 = new PolicyModel();
-            pm2.payload = i.payload;
-            pm2.entered = i.logTimestamp;
-            //TODO: find out policyID
-            pm2.policyID = 2;
+            PolicyModel policyModel = new Gson().fromJson(i.payload, PolicyModel.class);
+            pm2.policyID = policyModel.policyID;
+            pm2.payload = policyModel.payload;
+            pm2.entered = policyModel.entered;
             pm2.invalidated = null;
             policyDB.write(pm2);
         }

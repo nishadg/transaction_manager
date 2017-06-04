@@ -13,7 +13,6 @@ public class TransactionTest {
     @Test
     public void testConstructor() throws Exception {
 
-        Transaction t = new Transaction();
     }
 
     Transaction t;
