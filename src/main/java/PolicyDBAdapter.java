@@ -29,18 +29,21 @@ public class PolicyDBAdapter {
     }
 
     void write(PolicyModel policy) {
-        String insertSQL = "INSERT INTO Policies (policyID, payload, entered, invalidated) " +
-                "VALUES (?, ?, ?, ?)";
+        String insertSQL = "INSERT INTO Policies (policyID, author, querier, fromTS, toTS, entered, invalidated) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStmt;
         try {
             preparedStmt = connection.prepareStatement(insertSQL);
             preparedStmt.setInt(1, policy.policyID);
-            preparedStmt.setString(2, policy.payload);
-            preparedStmt.setTimestamp(3, policy.entered);
+            preparedStmt.setString(2, policy.author);
+            preparedStmt.setString(3, policy.querier);
+            preparedStmt.setTimestamp(4, policy.fromTS);
+            preparedStmt.setTimestamp(5, policy.toTS);
+            preparedStmt.setTimestamp(6, policy.entered);
             //TODO: Handle null values for invalidated field in case of redo
             //TODO: policy.invalidated = null which may not translate to NULL in sql
-            preparedStmt.setTimestamp(4, policy.invalidated);
+            preparedStmt.setTimestamp(7, policy.invalidated);
             preparedStmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -132,7 +135,7 @@ public class PolicyDBAdapter {
             ResultSet rs = prstmt.executeQuery();
 
             while (rs.next()) {
-                int res = rs.getInt("Id");
+                int res = rs.getInt("id");
                 result.add(res);
             }
         } catch (SQLException ex) {
@@ -159,14 +162,20 @@ public class PolicyDBAdapter {
         PolicyModel pm = new PolicyModel();
         try {
             int policyID = rs.getInt("policyID");
-            String payload = rs.getString("payload");
+            String author = rs.getString("author");
+            String querier = rs.getString("querier");
+            Timestamp fromTS = rs.getTimestamp("fromTS");
+            Timestamp toTS = rs.getTimestamp("toTS");
             Timestamp entered = rs.getTimestamp("entered");
             Timestamp invalidated = rs.getTimestamp("invalidated");
 
             pm.policyID = policyID;
             pm.entered = entered;
             pm.invalidated = invalidated;
-            pm.payload = payload;
+            pm.author = author;
+            pm.querier = querier;
+            pm.toTS = toTS;
+            pm.fromTS = fromTS;
 
             return pm;
 

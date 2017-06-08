@@ -18,11 +18,14 @@ CREATE TABLE policies.Logs
 create table Policies
 (
 	id int auto_increment
-	primary key,
+		primary key,
 	policyID int null,
-	payload text null,
-	entered TIMESTAMP(2) null,
-	invalidated TIMESTAMP(2) null
+	entered timestamp(3) default CURRENT_TIMESTAMP(3) not null,
+	invalidated timestamp(3) null,
+	author text null,
+	querier text null,
+	fromTS timestamp(3) null,
+	toTS timestamp(3) null
 );
 
 ALTER TABLE LOGS

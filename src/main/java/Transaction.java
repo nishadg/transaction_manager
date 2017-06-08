@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class Transaction {
     private ArrayList<PolicyModel> buffer;
     private int bufferSize = 5;
     private long trID;
+    private Gson gson;
 
     public Transaction() {
         logDB = new LogDBAdapter();
@@ -26,6 +28,9 @@ public class Transaction {
         if (latest2logs.size() > 0) {
             int x = recoveryManager(latest2logs);
         }
+        gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd hh:mm:ss.S")
+                .create();
     }
 
     private int recoveryManager(ArrayList<LogModel> latest2logs) {
@@ -124,12 +129,12 @@ public class Transaction {
     }
 
     int write(String policyJSON) {
-        PolicyModel policyModel = new Gson().fromJson(policyJSON, PolicyModel.class);
-        PolicyModel policy = new PolicyModel(policyModel.policyID,
-                new java.sql.Timestamp(new java.util.Date().getTime()), null, policyJSON);
+        PolicyModel policyModel = gson.fromJson(policyJSON, PolicyModel.class);
+        policyModel.entered = new java.sql.Timestamp(new java.util.Date().getTime());
+        policyModel.invalidated = null;
 
-        logDB.write(policy, trID);
-        buffer.add(policy);
+        logDB.write(policyModel, trID);
+        buffer.add(policyModel);
         if (buffer.size() == bufferSize) {
             flush();
         }
@@ -145,7 +150,7 @@ public class Transaction {
         STEP 3:
         ADD THEM TO POLICY TABLE
         STEP 4:
-        TODO: ADD CHECKPOINT IN THE LOGS??
+        ADD CHECKPOINT IN THE LOGS
         */
 
         //STEP 1:
@@ -158,16 +163,12 @@ public class Transaction {
         //STEP 3:
         for (LogModel i : tuplesFromLogtable) {
             if (!i.type.equalsIgnoreCase("update")) continue;
-            PolicyModel pm2 = new PolicyModel();
-            PolicyModel policyModel = new Gson().fromJson(i.payload, PolicyModel.class);
-            pm2.policyID = policyModel.policyID;
-            pm2.payload = policyModel.payload;
-            pm2.entered = policyModel.entered;
-            pm2.invalidated = null;
-            policyDB.write(pm2);
+            PolicyModel policyModel = gson.fromJson(i.payload, PolicyModel.class);
+            policyDB.write(policyModel);
         }
 
         //STEP 4:
+        flush();
 
 
         return 0;

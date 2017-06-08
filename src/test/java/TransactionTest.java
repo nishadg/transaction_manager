@@ -38,15 +38,17 @@ public class TransactionTest {
     public void flushVersionsTest() {
         t.begin();
 
-        for(int i = 0; i < 5; i++){
-            String policyJSON = "{ \"policyID\" : " + i + ", \"user\":\"name\"}";
+        for(int i = 0; i < 6; i++){
+            String policyJSON = "{\n" +
+                    "  \"policyID\": "+ i +",\n" +
+                    "  \"fromTS\": \"2013-08-05 18:19:03.000\",\n" +
+                    "  \"toTS\": \"2016-09-28 21:03:30.010\",\n" +
+                    "  \"author\": \"Jehanna\",\n" +
+                    "  \"querier\": \"Mitch\"\n" +
+                    "}";
             t.write(policyJSON);
         }
 
-        for(int i = 0; i < 5; i++){
-            String policyJSON = "{ \"policyID\" : " + i + ", \"user\":\"name\"}";
-            t.write(policyJSON);
-        }
         t.commit();
 
     }

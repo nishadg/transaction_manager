@@ -20,17 +20,19 @@ public class PolicyModel {
     @Expose
     public Timestamp invalidated;
 
-    @SerializedName("payload")
+    @SerializedName("fromTS")
     @Expose
-    public String payload;
+    public Timestamp fromTS;
 
-    public PolicyModel(Integer policyID, Timestamp entered, Timestamp invalidated, String payload) {
-        this.policyID = policyID;
-        this.entered = entered;
-        this.invalidated = invalidated;
-        this.payload = payload;
-    }
+    @SerializedName("toTS")
+    @Expose
+    public Timestamp toTS;
 
-    public PolicyModel() {
-    }
+    @SerializedName("author")
+    @Expose
+    public String author;
+
+    @SerializedName("querier")
+    @Expose
+    public String querier;
 }
