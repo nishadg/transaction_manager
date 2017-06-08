@@ -7,9 +7,13 @@ import java.sql.Timestamp;
  */
 public class TransactionManager {
 
-
+    static private Transaction t;
 
     public static Transaction createTransaction() {
-        return new Transaction();
+        if (t == null){
+            t = new Transaction();
+            return t;
+        }
+        else throw new RuntimeException("Cannot have multiple transactions");
     }
 }

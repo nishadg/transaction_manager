@@ -19,18 +19,19 @@ public class Transaction {
     private long trID;
     private Gson gson;
 
-    public Transaction() {
+    Transaction() {
         logDB = new LogDBAdapter();
         policyDB = new PolicyDBAdapter();
         ArrayList<LogModel> latest2logs = new ArrayList<>();
         latest2logs = logDB.getLastTwoLogs();
+        buffer = new ArrayList<>(bufferSize);
 //        System.out.println(latest2logs.get(0));
-        if (latest2logs.size() > 0) {
-            int x = recoveryManager(latest2logs);
-        }
         gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd hh:mm:ss.S")
                 .create();
+        if (latest2logs.size() > 0) {
+            int x = recoveryManager(latest2logs);
+        }
     }
 
     private int recoveryManager(ArrayList<LogModel> latest2logs) {
@@ -111,7 +112,6 @@ public class Transaction {
     void begin() {
         trID = logDB.getNewTrid();
         logDB.write(trID, ILogManager.BEGIN);
-        buffer = new ArrayList<>(bufferSize);
     }
 
     int commit() {
@@ -219,5 +219,13 @@ public class Transaction {
         }
         logDB.write(trID, ILogManager.CHECKPOINT);
         logDB.flush(Long.MAX_VALUE);
+    }
+
+    public String timeTraversal(Timestamp timestamp) {
+        ArrayList<PolicyModel> policies = policyDB.getPoliciesAt(timestamp);
+        ArrayList<String> policyJsons = new ArrayList<>(policies.size());
+        for (PolicyModel policy : policies)
+            policyJsons.add(gson.toJson(policy, PolicyModel.class));
+        return "[ ".concat(String.join(", ", policyJsons)).concat(" ]");
     }
 }

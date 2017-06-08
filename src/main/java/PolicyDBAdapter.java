@@ -196,4 +196,21 @@ public class PolicyDBAdapter {
         super.finalize();
         connection.close();
     }
+
+    public ArrayList<PolicyModel> getPoliciesAt(Timestamp timestamp) {
+        String selectSQL = "SELECT * FROM Policies WHERE entered <= ? AND (invalidated > ? OR invalidated IS NULL)";
+        ArrayList<PolicyModel> results = new ArrayList<>(5);
+        try {
+            PreparedStatement statement = connection.prepareStatement(selectSQL);
+            statement.setTimestamp(1, timestamp);
+            statement.setTimestamp(2, timestamp);
+            ResultSet rs = statement.executeQuery();
+            while(rs.next())
+                results.add(createPolicyModelObject(rs));
+            return results;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
