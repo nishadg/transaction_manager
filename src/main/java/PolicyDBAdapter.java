@@ -29,6 +29,7 @@ public class PolicyDBAdapter {
     }
 
     void write(PolicyModel policy) {
+
         String insertSQL = "INSERT INTO Policies (policyID, author, querier, fromTS, toTS, entered, invalidated) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 

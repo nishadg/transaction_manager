@@ -64,13 +64,11 @@ public class TransactionTest {
 
         t.begin();
         for(int i = 10; i < 33; i++){
-            String policyJSON = "{ \"policyID\" : " + i+ ", \"user\":\"name\"}";
+            String policyJSON = "{ \"policyID\" : " + i+ ", \"author\":\"name\"}";
             t.write(policyJSON);
         }
 
         t.abort();
-
-
     }
 
     @Test

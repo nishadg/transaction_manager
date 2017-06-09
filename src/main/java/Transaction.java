@@ -226,6 +226,6 @@ public class Transaction {
         ArrayList<String> policyJsons = new ArrayList<>(policies.size());
         for (PolicyModel policy : policies)
             policyJsons.add(gson.toJson(policy, PolicyModel.class));
-        return "[ ".concat(String.join(", ", policyJsons)).concat(" ]");
+        return "[ \n".concat(String.join(",\n ", policyJsons)).concat(" \n]");
     }
 }
