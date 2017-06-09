@@ -122,10 +122,15 @@ public class Transaction {
 
     int abort() {
         undo();
-        logDB.emptyBuffer();
+        emptyBuffer();
         logDB.write(trID, ILogManager.ABORT);
         flush();
         return SUCCESS;
+    }
+
+    private void emptyBuffer() {
+        buffer.clear();
+        logDB.emptyBuffer();
     }
 
     int write(String policyJSON) {
